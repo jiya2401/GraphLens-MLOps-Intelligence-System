@@ -1,0 +1,19 @@
+num_graphs: 100
+min_nodes: 5
+max_nodes: 12
+
+cpu_range:
+  min: 20
+  max: 100
+
+memory_range:
+  min: 20
+  max: 100
+
+runtime_range:
+  min: 1
+  max: 20
+
+failure_thresholds:
+  cpu: 85
+  runtime: 15
