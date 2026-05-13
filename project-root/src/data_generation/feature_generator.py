@@ -1,6 +1,24 @@
 import random
-Cpu_Usage = random.randint (20, 100)
-Memory_Usage = random.randint (20, 100)
-Runtime = random.randint (1, 20)
-print("Cpu_Usage:" + str(Cpu_Usage) + "")
-print("Runtime:" + str(Runtime) + "\n" + "Memory_Usage" + str(Memory_Usage) + "")
+
+
+def generate_node_features():
+
+    return {
+
+        "cpu_usage": random.randint(20, 100),
+
+        "memory_usage": random.randint(20, 100),
+
+        "runtime": random.randint(1, 20),
+
+        "queue_delay": random.randint(0, 10),
+
+        "retry_count": random.randint(0, 3)
+    }
+
+
+if __name__ == "__main__":
+
+    features = generate_node_features()
+
+    print(features)
