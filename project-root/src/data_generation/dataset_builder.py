@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 from graph_generator import generate_pipeline_graph
@@ -5,7 +7,8 @@ from feature_generator import generate_node_features
 from failure_simulator import simulate_failure
 
 
-all_rows = []
+node_rows = []
+edge_rows = []
 
 NUM_GRAPHS = 50
 
@@ -20,34 +23,43 @@ for graph_id in range(NUM_GRAPHS):
 
         failed = simulate_failure(features)
 
-        row = {
+        node_rows.append(
+            {
+                "graph_id": graph_id,
+                "node_name": node,
+                "cpu_usage": features["cpu_usage"],
+                "memory_usage": features["memory_usage"],
+                "runtime": features["runtime"],
+                "queue_delay": features["queue_delay"],
+                "retry_count": features["retry_count"],
+                "failed": failed,
+            }
+        )
 
-            "graph_id": graph_id,
-
-            "node_name": node,
-
-            "cpu_usage": features["cpu_usage"],
-
-            "memory_usage": features["memory_usage"],
-
-            "runtime": features["runtime"],
-
-            "queue_delay": features["queue_delay"],
-
-            "retry_count": features["retry_count"],
-
-            "failed": failed
-        }
-
-        all_rows.append(row)
+    for source_node, target_node in G.edges():
+        edge_rows.append(
+            {
+                "graph_id": graph_id,
+                "source_node": source_node,
+                "target_node": target_node,
+            }
+        )
 
 
-df = pd.DataFrame(all_rows)
+nodes_df = pd.DataFrame(node_rows)
+edges_df = pd.DataFrame(edge_rows)
 
-output_path = "C:\\Code_arena\\GraphLens-MLOps-Intelligence-System\\project-root\\data\\synthetic\\synthetic_pipeline_dataset.csv"
+output_dir = Path(__file__).resolve().parents[2] / "data" / "synthetic"
+output_dir.mkdir(parents=True, exist_ok=True)
 
-df.to_csv(output_path, index=False)
+nodes_path = output_dir / "nodes.csv"
+edges_path = output_dir / "edges.csv"
 
-print("\nDataset Generated Successfully!\n")
+nodes_df.to_csv(nodes_path, index=False)
+edges_df.to_csv(edges_path, index=False)
 
-print(df.head())
+print("\nGraph-Aware Datasets Generated Successfully!\n")
+print("Nodes preview:")
+print(nodes_df.head())
+print("\nEdges preview:")
+print(edges_df.head())
