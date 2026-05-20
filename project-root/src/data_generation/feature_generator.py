@@ -99,10 +99,16 @@ def generate_node_features(config=None):
         "pipeline_stage": _encode_category(categories["pipeline_stage"]),
         "execution_priority": _rand_int(1, 5),
         # Failure and reliability signals
-        "anomaly_score": _rand_float(*ranges["anomaly_score"], precision),
+        "anomaly_score": _rand_float(
+            ranges["anomaly_score"][0],
+            ranges["anomaly_score"][1],
+            precision,
+        ),
         "timeout_count": _rand_int(*ranges["timeout_count"]),
         "previous_failure_rate": _rand_float(
-            *ranges["previous_failure_rate"], precision
+            ranges["previous_failure_rate"][0],
+            ranges["previous_failure_rate"][1],
+            precision,
         ),
         "dependency_failure_count": _rand_int(
             *ranges["dependency_failure_count"]
@@ -113,9 +119,15 @@ def generate_node_features(config=None):
         "autoscaling_events": _rand_int(*ranges["autoscaling_events"]),
         # Data quality metrics
         "missing_value_ratio": _rand_float(
-            *ranges["missing_value_ratio"], precision
+            ranges["missing_value_ratio"][0],
+            ranges["missing_value_ratio"][1],
+            precision,
         ),
-        "data_drift_score": _rand_float(*ranges["data_drift_score"], precision),
+        "data_drift_score": _rand_float(
+            ranges["data_drift_score"][0],
+            ranges["data_drift_score"][1],
+            precision,
+        ),
         "schema_validation_errors": _rand_int(
             *ranges["schema_validation_errors"]
         ),
