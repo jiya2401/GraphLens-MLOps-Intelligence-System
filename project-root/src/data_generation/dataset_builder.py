@@ -28,11 +28,7 @@ for graph_id in range(NUM_GRAPHS):
             {
                 "graph_id": graph_id,
                 "node_name": node,
-                "cpu_usage": features["cpu_usage"],
-                "memory_usage": features["memory_usage"],
-                "runtime": features["runtime"],
-                "queue_delay": features["queue_delay"],
-                "retry_count": features["retry_count"],
+                **features,
                 "failed": failed,
             }
         )
@@ -64,6 +60,13 @@ def _write_csv_with_fallback(df, path):
         )
         return fallback_path
 
+
+def _print_dataset_summary(label, df):
+    print(f"\n{label} dataset shape: {df.shape}")
+    print(f"{label} columns: {list(df.columns)}")
+    print(f"{label} preview:")
+    print(df.head())
+
 output_dir = Path(__file__).resolve().parents[2] / "data" / "synthetic"
 output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -74,7 +77,5 @@ nodes_path = _write_csv_with_fallback(nodes_df, nodes_path)
 edges_path = _write_csv_with_fallback(edges_df, edges_path)
 
 print("\nGraph-Aware Datasets Generated Successfully!\n")
-print("Nodes preview:")
-print(nodes_df.head())
-print("\nEdges preview:")
-print(edges_df.head())
+_print_dataset_summary("Nodes", nodes_df)
+_print_dataset_summary("Edges", edges_df)
