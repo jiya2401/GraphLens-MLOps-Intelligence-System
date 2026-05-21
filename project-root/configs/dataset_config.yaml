@@ -17,3 +17,8 @@ runtime_range:
 failure_thresholds:
   cpu: 85
   runtime: 15
+
+propagation_enabled: true
+propagation_strength: 0.35
+propagation_decay: 0.6
+max_propagation_depth: 3
