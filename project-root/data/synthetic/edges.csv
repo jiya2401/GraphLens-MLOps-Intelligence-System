@@ -23,6 +23,7 @@ graph_id,source_node,target_node
 4,Data_Cleaning,Feature_Engineering
 4,Feature_Engineering,Model_Training
 4,Model_Training,Evaluation
+4,Evaluation,Deployment
 5,Data_Ingestion,Data_Cleaning
 5,Data_Cleaning,Feature_Engineering
 5,Feature_Engineering,Model_Training
@@ -52,12 +53,10 @@ graph_id,source_node,target_node
 10,Data_Cleaning,Feature_Engineering
 10,Feature_Engineering,Model_Training
 10,Model_Training,Evaluation
-10,Evaluation,Deployment
 11,Data_Ingestion,Data_Cleaning
 11,Data_Cleaning,Feature_Engineering
 11,Feature_Engineering,Model_Training
 11,Model_Training,Evaluation
-11,Evaluation,Deployment
 12,Data_Ingestion,Data_Cleaning
 12,Data_Cleaning,Feature_Engineering
 12,Feature_Engineering,Model_Training
@@ -67,12 +66,10 @@ graph_id,source_node,target_node
 13,Data_Cleaning,Feature_Engineering
 13,Feature_Engineering,Model_Training
 13,Model_Training,Evaluation
-13,Evaluation,Deployment
 14,Data_Ingestion,Data_Cleaning
 14,Data_Cleaning,Feature_Engineering
 14,Feature_Engineering,Model_Training
 14,Model_Training,Evaluation
-14,Evaluation,Deployment
 15,Data_Ingestion,Data_Cleaning
 15,Data_Cleaning,Feature_Engineering
 15,Feature_Engineering,Model_Training
@@ -97,6 +94,7 @@ graph_id,source_node,target_node
 19,Data_Cleaning,Feature_Engineering
 19,Feature_Engineering,Model_Training
 19,Model_Training,Evaluation
+19,Evaluation,Deployment
 20,Data_Ingestion,Data_Cleaning
 20,Data_Cleaning,Feature_Engineering
 20,Feature_Engineering,Model_Training
@@ -136,10 +134,12 @@ graph_id,source_node,target_node
 27,Data_Cleaning,Feature_Engineering
 27,Feature_Engineering,Model_Training
 27,Model_Training,Evaluation
+27,Evaluation,Deployment
 28,Data_Ingestion,Data_Cleaning
 28,Data_Cleaning,Feature_Engineering
 28,Feature_Engineering,Model_Training
 28,Model_Training,Evaluation
+28,Evaluation,Deployment
 29,Data_Ingestion,Data_Cleaning
 29,Data_Cleaning,Feature_Engineering
 29,Feature_Engineering,Model_Training
@@ -154,6 +154,7 @@ graph_id,source_node,target_node
 31,Data_Cleaning,Feature_Engineering
 31,Feature_Engineering,Model_Training
 31,Model_Training,Evaluation
+31,Evaluation,Deployment
 32,Data_Ingestion,Data_Cleaning
 32,Data_Cleaning,Feature_Engineering
 32,Feature_Engineering,Model_Training
@@ -212,6 +213,7 @@ graph_id,source_node,target_node
 43,Data_Cleaning,Feature_Engineering
 43,Feature_Engineering,Model_Training
 43,Model_Training,Evaluation
+43,Evaluation,Deployment
 44,Data_Ingestion,Data_Cleaning
 44,Data_Cleaning,Feature_Engineering
 44,Feature_Engineering,Model_Training
@@ -225,7 +227,6 @@ graph_id,source_node,target_node
 46,Data_Cleaning,Feature_Engineering
 46,Feature_Engineering,Model_Training
 46,Model_Training,Evaluation
-46,Evaluation,Deployment
 47,Data_Ingestion,Data_Cleaning
 47,Data_Cleaning,Feature_Engineering
 47,Feature_Engineering,Model_Training
@@ -245,11 +246,11 @@ graph_id,source_node,target_node
 50,Data_Cleaning,Feature_Engineering
 50,Feature_Engineering,Model_Training
 50,Model_Training,Evaluation
-50,Evaluation,Deployment
 51,Data_Ingestion,Data_Cleaning
 51,Data_Cleaning,Feature_Engineering
 51,Feature_Engineering,Model_Training
 51,Model_Training,Evaluation
+51,Evaluation,Deployment
 52,Data_Ingestion,Data_Cleaning
 52,Data_Cleaning,Feature_Engineering
 52,Feature_Engineering,Model_Training
@@ -259,12 +260,10 @@ graph_id,source_node,target_node
 53,Data_Cleaning,Feature_Engineering
 53,Feature_Engineering,Model_Training
 53,Model_Training,Evaluation
-53,Evaluation,Deployment
 54,Data_Ingestion,Data_Cleaning
 54,Data_Cleaning,Feature_Engineering
 54,Feature_Engineering,Model_Training
 54,Model_Training,Evaluation
-54,Evaluation,Deployment
 55,Data_Ingestion,Data_Cleaning
 55,Data_Cleaning,Feature_Engineering
 55,Feature_Engineering,Model_Training
@@ -274,7 +273,6 @@ graph_id,source_node,target_node
 56,Data_Cleaning,Feature_Engineering
 56,Feature_Engineering,Model_Training
 56,Model_Training,Evaluation
-56,Evaluation,Deployment
 57,Data_Ingestion,Data_Cleaning
 57,Data_Cleaning,Feature_Engineering
 57,Feature_Engineering,Model_Training
@@ -294,7 +292,6 @@ graph_id,source_node,target_node
 60,Data_Cleaning,Feature_Engineering
 60,Feature_Engineering,Model_Training
 60,Model_Training,Evaluation
-60,Evaluation,Deployment
 61,Data_Ingestion,Data_Cleaning
 61,Data_Cleaning,Feature_Engineering
 61,Feature_Engineering,Model_Training
@@ -304,6 +301,7 @@ graph_id,source_node,target_node
 62,Data_Cleaning,Feature_Engineering
 62,Feature_Engineering,Model_Training
 62,Model_Training,Evaluation
+62,Evaluation,Deployment
 63,Data_Ingestion,Data_Cleaning
 63,Data_Cleaning,Feature_Engineering
 63,Feature_Engineering,Model_Training
@@ -313,6 +311,7 @@ graph_id,source_node,target_node
 64,Data_Cleaning,Feature_Engineering
 64,Feature_Engineering,Model_Training
 64,Model_Training,Evaluation
+64,Evaluation,Deployment
 65,Data_Ingestion,Data_Cleaning
 65,Data_Cleaning,Feature_Engineering
 65,Feature_Engineering,Model_Training
@@ -332,7 +331,6 @@ graph_id,source_node,target_node
 68,Data_Cleaning,Feature_Engineering
 68,Feature_Engineering,Model_Training
 68,Model_Training,Evaluation
-68,Evaluation,Deployment
 69,Data_Ingestion,Data_Cleaning
 69,Data_Cleaning,Feature_Engineering
 69,Feature_Engineering,Model_Training
@@ -347,6 +345,7 @@ graph_id,source_node,target_node
 71,Data_Cleaning,Feature_Engineering
 71,Feature_Engineering,Model_Training
 71,Model_Training,Evaluation
+71,Evaluation,Deployment
 72,Data_Ingestion,Data_Cleaning
 72,Data_Cleaning,Feature_Engineering
 72,Feature_Engineering,Model_Training
@@ -361,11 +360,11 @@ graph_id,source_node,target_node
 74,Data_Cleaning,Feature_Engineering
 74,Feature_Engineering,Model_Training
 74,Model_Training,Evaluation
+74,Evaluation,Deployment
 75,Data_Ingestion,Data_Cleaning
 75,Data_Cleaning,Feature_Engineering
 75,Feature_Engineering,Model_Training
 75,Model_Training,Evaluation
-75,Evaluation,Deployment
 76,Data_Ingestion,Data_Cleaning
 76,Data_Cleaning,Feature_Engineering
 76,Feature_Engineering,Model_Training
@@ -403,7 +402,6 @@ graph_id,source_node,target_node
 83,Data_Cleaning,Feature_Engineering
 83,Feature_Engineering,Model_Training
 83,Model_Training,Evaluation
-83,Evaluation,Deployment
 84,Data_Ingestion,Data_Cleaning
 84,Data_Cleaning,Feature_Engineering
 84,Feature_Engineering,Model_Training
@@ -413,6 +411,7 @@ graph_id,source_node,target_node
 85,Data_Cleaning,Feature_Engineering
 85,Feature_Engineering,Model_Training
 85,Model_Training,Evaluation
+85,Evaluation,Deployment
 86,Data_Ingestion,Data_Cleaning
 86,Data_Cleaning,Feature_Engineering
 86,Feature_Engineering,Model_Training
@@ -437,6 +436,7 @@ graph_id,source_node,target_node
 90,Data_Cleaning,Feature_Engineering
 90,Feature_Engineering,Model_Training
 90,Model_Training,Evaluation
+90,Evaluation,Deployment
 91,Data_Ingestion,Data_Cleaning
 91,Data_Cleaning,Feature_Engineering
 91,Feature_Engineering,Model_Training
@@ -461,11 +461,11 @@ graph_id,source_node,target_node
 95,Data_Cleaning,Feature_Engineering
 95,Feature_Engineering,Model_Training
 95,Model_Training,Evaluation
+95,Evaluation,Deployment
 96,Data_Ingestion,Data_Cleaning
 96,Data_Cleaning,Feature_Engineering
 96,Feature_Engineering,Model_Training
 96,Model_Training,Evaluation
-96,Evaluation,Deployment
 97,Data_Ingestion,Data_Cleaning
 97,Data_Cleaning,Feature_Engineering
 97,Feature_Engineering,Model_Training

@@ -7,7 +7,7 @@ import yaml
 
 from graph_generator import generate_pipeline_graph
 from feature_generator import DEFAULT_CONFIG, generate_node_features
-from failure_simulator import simulate_graph_failures
+from temporal_simulator import simulate_temporal_graph
 
 
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -76,6 +76,14 @@ propagation_config = {
     "propagation_decay": dataset_config.get("propagation_decay", 0.6),
     "max_propagation_depth": dataset_config.get("max_propagation_depth", 3),
 }
+temporal_config = {
+    "num_timesteps": dataset_config.get("num_timesteps", 5),
+    "temporal_drift_strength": dataset_config.get("temporal_drift_strength", 0.05),
+    "recovery_probability": dataset_config.get("recovery_probability", 0.1),
+    "instability_accumulation_rate": dataset_config.get(
+        "instability_accumulation_rate", 0.15
+    ),
+}
 
 num_graphs = dataset_config.get("num_graphs", 50)
 min_nodes = dataset_config.get("min_nodes", 3)
@@ -83,10 +91,19 @@ max_nodes = dataset_config.get("max_nodes", 6)
 
 propagation_totals = {
     "graphs": 0,
+    "timesteps": 0,
     "base_failures": 0,
     "propagated_failures": 0,
     "impacted_nodes": 0,
     "total_failures": 0,
+}
+
+temporal_totals = {
+    "graphs": 0,
+    "timesteps": 0,
+    "recovery_events": 0,
+    "instability_sum": 0.0,
+    "instability_samples": 0,
 }
 
 
@@ -94,39 +111,45 @@ for graph_id in range(num_graphs):
 
     G = generate_pipeline_graph(min_nodes=min_nodes, max_nodes=max_nodes)
 
-    features_by_node = {
+    initial_features_by_node = {
         node: generate_node_features(config=feature_config) for node in G.nodes()
     }
 
-    features_by_node, failures_by_node, graph_stats = simulate_graph_failures(
-        G,
-        features_by_node,
-        thresholds=failure_thresholds,
-        propagation_config=propagation_config,
+    temporal_rows, graph_prop_stats, graph_temporal_stats = (
+        simulate_temporal_graph(
+            G,
+            graph_id,
+            initial_features_by_node,
+            thresholds=failure_thresholds,
+            propagation_config=propagation_config,
+            temporal_config=temporal_config,
+            feature_config=feature_config,
+        )
     )
 
+    node_rows.extend(temporal_rows)
+
     propagation_totals["graphs"] += 1
+    propagation_totals["timesteps"] += graph_prop_stats.get("timesteps", 0)
     for key in (
         "base_failures",
         "propagated_failures",
         "impacted_nodes",
         "total_failures",
     ):
-        propagation_totals[key] += graph_stats.get(key, 0)
+        propagation_totals[key] += graph_prop_stats.get(key, 0)
 
-    for node in G.nodes():
-
-        features = features_by_node[node]
-        failed = failures_by_node[node]
-
-        node_rows.append(
-            {
-                "graph_id": graph_id,
-                "node_name": node,
-                **features,
-                "failed": failed,
-            }
-        )
+    temporal_totals["graphs"] += graph_temporal_stats.get("graphs", 0)
+    temporal_totals["timesteps"] += graph_temporal_stats.get("timesteps", 0)
+    temporal_totals["recovery_events"] += graph_temporal_stats.get(
+        "recovery_events", 0
+    )
+    temporal_totals["instability_sum"] += graph_temporal_stats.get(
+        "instability_sum", 0.0
+    )
+    temporal_totals["instability_samples"] += graph_temporal_stats.get(
+        "instability_samples", 0
+    )
 
     for source_node, target_node in G.edges():
         edge_rows.append(
@@ -165,6 +188,7 @@ def _print_dataset_summary(label, df):
 
 def _print_propagation_summary(stats, total_nodes):
     graphs = stats.get("graphs", 0)
+    timesteps = stats.get("timesteps", 0)
     base_failures = stats.get("base_failures", 0)
     propagated_failures = stats.get("propagated_failures", 0)
     impacted_nodes = stats.get("impacted_nodes", 0)
@@ -173,12 +197,27 @@ def _print_propagation_summary(stats, total_nodes):
 
     print("\nFailure propagation summary:")
     print(f"Graphs processed: {graphs}")
+    print(f"Timesteps simulated: {timesteps}")
     print(f"Total nodes: {total_nodes}")
     print(f"Base failures: {base_failures}")
     print(f"Propagated failures: {propagated_failures}")
     print(f"Impacted nodes: {impacted_nodes}")
     print(f"Total failures: {total_failures}")
     print(f"Failure rate: {failure_rate:.3f}")
+
+
+def _print_temporal_summary(stats):
+    graphs = stats.get("graphs", 0)
+    timesteps = stats.get("timesteps", 0)
+    recovery_events = stats.get("recovery_events", 0)
+    samples = stats.get("instability_samples", 0)
+    instability_avg = stats.get("instability_sum", 0.0) / max(1, samples)
+
+    print("\nTemporal simulation summary:")
+    print(f"Graphs processed: {graphs}")
+    print(f"Timesteps simulated: {timesteps}")
+    print(f"Recovery events: {recovery_events}")
+    print(f"Average instability: {instability_avg:.3f}")
 
 output_dir = BASE_DIR / "data" / "synthetic"
 output_dir.mkdir(parents=True, exist_ok=True)
@@ -190,6 +229,7 @@ nodes_path = _write_csv_with_fallback(nodes_df, nodes_path)
 edges_path = _write_csv_with_fallback(edges_df, edges_path)
 
 print("\nGraph-Aware Datasets Generated Successfully!\n")
+_print_temporal_summary(temporal_totals)
 _print_propagation_summary(propagation_totals, len(nodes_df))
 _print_dataset_summary("Nodes", nodes_df)
 _print_dataset_summary("Edges", edges_df)

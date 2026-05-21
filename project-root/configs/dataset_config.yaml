@@ -22,3 +22,8 @@ propagation_enabled: true
 propagation_strength: 0.35
 propagation_decay: 0.6
 max_propagation_depth: 3
+
+num_timesteps: 5
+temporal_drift_strength: 0.05
+recovery_probability: 0.1
+instability_accumulation_rate: 0.15
