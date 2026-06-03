@@ -1,15 +1,16 @@
 import argparse
 import json
 from pathlib import Path
- 
+
 import pandas as pd
 
-BASE_DIR   = Path(__file__).resolve().parents[1]   # project-root/
+
+BASE_DIR   = Path(__file__).resolve().parents[2]
 NODES_CSV  = BASE_DIR / "data" / "synthetic" / "nodes.csv"
 EDGES_CSV  = BASE_DIR / "data" / "synthetic" / "edges.csv"
-OUTPUT_DIR = BASE_DIR / "data" / "json"
- 
- 
+OUTPUT_DIR = BASE_DIR / "data" / "synthetic" / "json"
+
+
 INFRA_METRICS = [
     "cpu_usage", "memory_usage", "gpu_usage",
     "disk_io", "network_latency", "temperature",
@@ -31,12 +32,12 @@ RESOURCE_METRICS = [
 DATA_QUALITY_METRICS = [
     "missing_value_ratio", "data_drift_score", "schema_validation_errors",
 ]
- 
+
 ALL_TELEMETRY = (
     INFRA_METRICS + EXEC_METRICS + METADATA_FIELDS +
     FAILURE_METRICS + RESOURCE_METRICS + DATA_QUALITY_METRICS
 )
- 
+
 def _classify_health(row: pd.Series) -> str:
     if row["failed"] == 1:
         return "failed"
@@ -45,163 +46,178 @@ def _classify_health(row: pd.Series) -> str:
     if row["previous_failure_rate"] > 0.2:
         return "unstable"
     return "healthy"
- 
- 
-# Core serializer — one JSON per (graph_id, timestep) 
-def serialize_graph(
+
+
+# execution_state 
+def _execution_state(row: pd.Series) -> str:
+    if row["failed"] == 1:
+        return "failed"
+    if row["retry_count"] > 0:
+        return "retrying"
+    if row["cpu_usage"] >= 60 or row["runtime"] >= 10:
+        return "running"
+    if row["previous_failure_rate"] > 0.3:
+        return "recovering"
+    return "idle"
+
+
+# Serialize one timestep snapshot
+def _serialize_timestep(
     graph_id: int,
     timestep: int,
     nodes_df: pd.DataFrame,
     edges_df: pd.DataFrame,
 ) -> dict:
-    """Return a frontend-ready dict for one (graph_id, timestep) snapshot."""
- 
-    # ---- filter to this graph + timestep ----
+
     node_slice = nodes_df[
         (nodes_df["graph_id"] == graph_id) &
         (nodes_df["timestep"] == timestep)
     ]
     edge_slice = edges_df[edges_df["graph_id"] == graph_id]
- 
+
     if node_slice.empty:
         raise ValueError(
-            f"No node data found for graph_id={graph_id}, timestep={timestep}"
+            f"No node data for graph_id={graph_id}, timestep={timestep}"
         )
- 
-    # ---- build node list ----
+
+    # ---- nodes ----
     nodes = []
     for _, row in node_slice.iterrows():
-        telemetry = {field: row[field] for field in ALL_TELEMETRY if field in row}
+        telemetry = {f: row[f] for f in ALL_TELEMETRY if f in row}
         nodes.append({
-            "id":              row["node_name"],
-            "failed":          bool(row["failed"]),
-            "health":          _classify_health(row),
-            "instability":     round(float(row["previous_failure_rate"]), 3),
-            "anomaly_score":   round(float(row["anomaly_score"]), 3),
-            "runtime":         int(row["runtime"]),
-            "telemetry":       telemetry,
+            "id":               row["node_name"],
+            "failed":           bool(row["failed"]),
+            "health":           _classify_health(row),
+            "execution_state":  _execution_state(row),   # Change 2
+            "instability":      round(float(row["previous_failure_rate"]), 3),
+            "anomaly_score":    round(float(row["anomaly_score"]), 3),
+            "runtime":          int(row["runtime"]),
+            "telemetry":        telemetry,
         })
- 
-    # ---- build edge list ----
-    valid_node_ids = {n["id"] for n in nodes}
+
+    # ---- edges ----
+    valid_ids = {n["id"] for n in nodes}
     edges = []
     for _, row in edge_slice.iterrows():
         src, tgt = row["source_node"], row["target_node"]
-        # only include edges whose endpoints exist in this graph's node set
-        if src in valid_node_ids and tgt in valid_node_ids:
+        if src in valid_ids and tgt in valid_ids:
             edges.append({
-                "source": src,
-                "target": tgt,
-                "propagation_risk": None,   # placeholder for Phase 3
+                "source":           src,
+                "target":           tgt,
+                "propagation_risk": None,
             })
- 
-    # ---- propagation stats ----
-    total_nodes   = len(nodes)
-    failed_nodes  = sum(1 for n in nodes if n["failed"])
-    warning_nodes = sum(1 for n in nodes if n["health"] == "warning")
-    avg_anomaly   = round(
-        sum(n["anomaly_score"] for n in nodes) / max(1, total_nodes), 3
-    )
- 
+
+    # ---- stats ----
+    total   = len(nodes)
+    failed  = sum(1 for n in nodes if n["failed"])
+    warning = sum(1 for n in nodes if n["health"] == "warning")
+
     propagation_stats = {
-        "total_nodes":    total_nodes,
-        "failed_nodes":   failed_nodes,
-        "warning_nodes":  warning_nodes,
-        "healthy_nodes":  total_nodes - failed_nodes - warning_nodes,
-        "failure_rate":   round(failed_nodes / max(1, total_nodes), 3),
-        "avg_anomaly_score": avg_anomaly,
-    }
- 
-    # ---- temporal stats ----
-    all_timesteps = sorted(
-        nodes_df[nodes_df["graph_id"] == graph_id]["timestep"].unique().tolist()
-    )
-    temporal_stats = {
-        "current_timestep": timestep,
-        "total_timesteps":  len(all_timesteps),
-        "timestep_range":   [int(all_timesteps[0]), int(all_timesteps[-1])],
-        "avg_instability":  round(
-            sum(n["instability"] for n in nodes) / max(1, total_nodes), 3
+        "total_nodes":       total,
+        "failed_nodes":      failed,
+        "warning_nodes":     warning,
+        "healthy_nodes":     total - failed - warning,
+        "failure_rate":      round(failed / max(1, total), 3),
+        "avg_anomaly_score": round(
+            sum(n["anomaly_score"] for n in nodes) / max(1, total), 3
         ),
     }
- 
+
     return {
-        "graph_id":          graph_id,
         "timestep":          timestep,
         "nodes":             nodes,
         "edges":             edges,
         "propagation_stats": propagation_stats,
-        "temporal_stats":    temporal_stats,
     }
- 
 
+
+# Serialize one full graph — all timesteps inside one JSON
+def serialize_graph(
+    graph_id: int,
+    nodes_df: pd.DataFrame,
+    edges_df: pd.DataFrame,
+) -> dict:
+
+    timesteps = sorted(
+        nodes_df[nodes_df["graph_id"] == graph_id]["timestep"].unique().tolist()
+    )
+
+    snapshots = []
+    for tid in timesteps:
+        try:
+            snapshots.append(_serialize_timestep(graph_id, tid, nodes_df, edges_df))
+        except ValueError as exc:
+            print(f"  [skip] {exc}")
+
+    return {
+        "graph_id":  graph_id,
+        "timesteps": snapshots,
+        "temporal_stats": {
+            "total_timesteps": len(snapshots),
+            "timestep_range":  [int(timesteps[0]), int(timesteps[-1])],
+            "avg_instability": round(
+                sum(
+                    n["instability"]
+                    for s in snapshots
+                    for n in s["nodes"]
+                ) / max(1, sum(len(s["nodes"]) for s in snapshots)),
+                3,
+            ),
+        },
+    }
+
+
+# Batch — one file per graph
 def serialize_all(
     nodes_df: pd.DataFrame,
     edges_df: pd.DataFrame,
-    graph_ids: list[int] | None = None,
-    timesteps: list[int] | None = None,
+    graph_ids: list | None = None,
     output_dir: Path = OUTPUT_DIR,
-) -> list[Path]:
+) -> list:
+
     output_dir = Path(output_dir).resolve()
     if not output_dir.exists():
-      output_dir.mkdir(parents=True)  
- 
+        output_dir.mkdir(parents=True)
+
     gids = graph_ids or sorted(nodes_df["graph_id"].unique().tolist())
-    tids = timesteps  # None means all timesteps per graph
- 
-    written: list[Path] = []
- 
+    written = []
+
     for gid in gids:
-        g_timesteps = tids or sorted(
-            nodes_df[nodes_df["graph_id"] == gid]["timestep"].unique().tolist()
-        )
-        for tid in g_timesteps:
-            try:
-                payload = serialize_graph(gid, tid, nodes_df, edges_df)
-            except ValueError as exc:
-                print(f"  [skip] {exc}")
-                continue
- 
-            fname = output_dir / f"graph_{gid:03d}_t{tid:02d}.json"
-            fname.write_text(json.dumps(payload, indent=2))
-            written.append(fname)
-            print(f"  [ok]   {fname.name}  "
-                  f"({payload['propagation_stats']['total_nodes']} nodes, "
-                  f"{len(payload['edges'])} edges)")
- 
+        payload  = serialize_graph(gid, nodes_df, edges_df)
+        fname    = output_dir / f"graph_{gid:03d}.json"
+        fname.write_text(json.dumps(payload, indent=2))
+        written.append(fname)
+        n_ts = len(payload["timesteps"])
+        n_nodes = len(payload["timesteps"][0]["nodes"]) if payload["timesteps"] else 0
+        print(f"  [ok]   {fname.name}  ({n_nodes} nodes, {n_ts} timesteps)")
+
     return written
- 
- 
+
+
+# CLI
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="GraphLens DAG → JSON converter")
-    p.add_argument("--graph-id",  type=int, default=None,
-                   help="Single graph ID to export (default: all)")
-    p.add_argument("--timestep",  type=int, default=None,
-                   help="Single timestep to export (default: all)")
+    p.add_argument("--graph-id",  type=int, default=None)
     p.add_argument("--nodes-csv", type=Path, default=NODES_CSV)
     p.add_argument("--edges-csv", type=Path, default=EDGES_CSV)
-    p.add_argument("--output",    type=Path, default=OUTPUT_DIR,
-                   help="Output directory for JSON files")
+    p.add_argument("--output",    type=Path, default=OUTPUT_DIR)
     return p.parse_args()
- 
- 
+
+
 def main() -> None:
     args = _parse_args()
- 
+
     print(f"Loading {args.nodes_csv} …")
     nodes_df = pd.read_csv(args.nodes_csv)
     print(f"Loading {args.edges_csv} …")
     edges_df = pd.read_csv(args.edges_csv)
- 
+
     graph_ids = [args.graph_id] if args.graph_id is not None else None
-    timesteps = [args.timestep] if args.timestep is not None else None
- 
+
     print(f"\nSerializing → {args.output}\n")
-    written = serialize_all(nodes_df, edges_df, graph_ids, timesteps, args.output)
- 
-    print(f"\nDone. {len(written)} file(s) written.")
- 
- 
+    written = serialize_all(nodes_df, edges_df, graph_ids, args.output)
+    print(f"\nDone. {len(written)} file(s) written.")                       
+
+
 if __name__ == "__main__":
     main()
- 
