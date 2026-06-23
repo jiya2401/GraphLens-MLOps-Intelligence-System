@@ -15,7 +15,7 @@ TELEMETRY_SPOT_CHECK = {
  
 VALID_HEALTH_VALUES = {"healthy", "warning", "unstable", "failed"}
  
-PROP_STATS_KEYS = {"total_nodes", "failed_nodes", "healthy_nodes",
+PROP_STATS_KEYS = {"total_nodes", "failed_nodes", "warning_nodes", "healthy_nodes",
                    "failure_rate", "avg_anomaly_score"}
  
 TEMPORAL_STATS_KEYS = {"current_timestep", "total_timesteps",

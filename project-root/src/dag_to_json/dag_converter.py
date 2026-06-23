@@ -4,7 +4,7 @@ from pathlib import Path
  
 import pandas as pd
 
-BASE_DIR   = Path(__file__).resolve().parents[1]   # project-root/
+BASE_DIR   = Path(__file__).resolve().parents[2]   # project-root/
 NODES_CSV  = BASE_DIR / "data" / "synthetic" / "nodes.csv"
 EDGES_CSV  = BASE_DIR / "data" / "synthetic" / "edges.csv"
 OUTPUT_DIR = BASE_DIR / "data" / "json"
