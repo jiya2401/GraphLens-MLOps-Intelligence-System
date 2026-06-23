@@ -1,0 +1,214 @@
+/**
+ * GraphLens Global Styles
+ *
+ * Uses TailwindCSS v4 with @import for the framework,
+ * plus custom CSS variables for the design system.
+ *
+ * Design system colors use HSL for easy manipulation.
+ * HSL = Hue (color), Saturation (intensity), Lightness (brightness)
+ *
+ * Interview Q: "Why use CSS custom properties (variables)?"
+ * Answer: They enable runtime theme switching, reduce repetition,
+ * and provide a single source of truth for design tokens.
+ */
+
+@import "tailwindcss";
+
+/* ===== Custom Design Tokens ===== */
+:root {
+  /* Dark theme colors */
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #111827;
+  --bg-card: #1a1f35;
+  --bg-card-hover: #222845;
+  --bg-sidebar: rgba(17, 24, 39, 0.85);
+
+  /* Accent colors */
+  --accent-primary: #6366f1;
+  --accent-secondary: #8b5cf6;
+  --accent-gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
+
+  /* Status colors */
+  --status-healthy: #10b981;
+  --status-warning: #f59e0b;
+  --status-failed: #ef4444;
+  --status-root-cause: #3b82f6;
+  --status-unknown: #6b7280;
+  --status-unstable: #f97316;
+
+  /* Text */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  /* Borders */
+  --border-subtle: rgba(148, 163, 184, 0.1);
+  --border-accent: rgba(99, 102, 241, 0.3);
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.15);
+
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Spacing */
+  --sidebar-width: 260px;
+  --topbar-height: 64px;
+}
+
+/* ===== Base Styles ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ===== Scrollbar Styling ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+/* ===== Glassmorphism Utility ===== */
+.glass {
+  background: rgba(26, 31, 53, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+}
+
+.glass-strong {
+  background: rgba(26, 31, 53, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ===== Gradient Text ===== */
+.gradient-text {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== Card Styles ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-glow);
+}
+
+/* ===== Status Badges ===== */
+.status-healthy { color: var(--status-healthy); }
+.status-warning { color: var(--status-warning); }
+.status-failed { color: var(--status-failed); }
+.status-root-cause { color: var(--status-root-cause); }
+.status-unknown { color: var(--status-unknown); }
+.status-unstable { color: var(--status-unstable); }
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot-healthy { background: var(--status-healthy); box-shadow: 0 0 8px var(--status-healthy); }
+.status-dot-warning { background: var(--status-warning); box-shadow: 0 0 8px var(--status-warning); }
+.status-dot-failed { background: var(--status-failed); box-shadow: 0 0 8px var(--status-failed); }
+.status-dot-unstable { background: var(--status-unstable); box-shadow: 0 0 8px var(--status-unstable); }
+
+/* ===== Pulse Animation for Failed Nodes ===== */
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.animate-pulse-red {
+  animation: pulse-red 2s ease-in-out infinite;
+}
+
+/* ===== React Flow Overrides ===== */
+.react-flow__background {
+  background: var(--bg-primary) !important;
+}
+
+.react-flow__minimap {
+  background: var(--bg-secondary) !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+.react-flow__controls {
+  border-radius: 8px !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+.react-flow__controls-button {
+  background: var(--bg-card) !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--text-secondary) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--bg-card-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ===== Recharts Overrides ===== */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: var(--border-subtle) !important;
+}
+
+.recharts-text {
+  fill: var(--text-secondary) !important;
+  font-family: var(--font-family) !important;
+  font-size: 11px !important;
+}
